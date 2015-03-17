@@ -225,8 +225,6 @@ func (dbp *DebuggedProcess) Status() *sys.WaitStatus {
 
 // Step over function calls.
 func (dbp *DebuggedProcess) Next() error {
-	var ran int
-
 	fn := func() error {
 		defer func() {
 			for _, bp := range dbp.BreakPoints {
@@ -237,34 +235,29 @@ func (dbp *DebuggedProcess) Next() error {
 		}()
 
 		for _, th := range dbp.Threads {
-			// Continue threads waiting for Goroutines
-			if th.blocked() {
-				if err := th.Continue(); err != nil {
+			if th == dbp.CurrentThread {
+				if err := th.Next(); err != nil && err != sys.ESRCH {
 					return err
 				}
-				continue
 			}
 
-			if err := th.Next(); err != nil && err != sys.ESRCH {
+			if err := th.Continue(); err != nil {
 				return err
 			}
-			ran++
 		}
 
-		for i := 0; i < ran; i++ {
-			wpid, err := trapWait(dbp, 0)
-			if err != nil {
-				return err
-			}
-			th := dbp.Threads[wpid]
-			regs, err := dbp.Registers()
-			if err != nil {
-				return err
-			}
-			err = regs.SetPC(th, regs.PC()-1)
-			if err != nil {
-				return err
-			}
+		wpid, err := trapWait(dbp, 0)
+		if err != nil {
+			return err
+		}
+		th := dbp.Threads[wpid]
+		regs, err := dbp.Registers()
+		if err != nil {
+			return err
+		}
+		err = regs.SetPC(th, regs.PC()-1)
+		if err != nil {
+			return err
 		}
 
 		return dbp.Halt()

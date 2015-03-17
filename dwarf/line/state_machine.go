@@ -81,11 +81,11 @@ func (dbl *DebugLineInfo) NextLocation(pc uint64) *Location {
 	)
 
 	executeUntilPC(sm, buf, pc)
-	l := sm.Line
+	a := sm.Address
 	for b, err := buf.ReadByte(); err == nil; b, err = buf.ReadByte() {
 		findAndExecOpcode(sm, buf, b)
 
-		if sm.Line != l {
+		if sm.Address != a {
 			break
 		}
 	}

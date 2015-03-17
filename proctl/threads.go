@@ -3,6 +3,7 @@ package proctl
 import (
 	"encoding/binary"
 	"fmt"
+	"path/filepath"
 
 	sys "golang.org/x/sys/unix"
 )
@@ -117,6 +118,7 @@ func (thread *ThreadContext) Next() (err error) {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("current PC %#v\n", pc)
 
 	if bp, ok := thread.Process.BreakPoints[pc-1]; ok {
 		pc = bp.Addr
@@ -131,10 +133,12 @@ func (thread *ThreadContext) Next() (err error) {
 	if loc.Delta < 0 {
 		loc = thread.Process.LineInfo.LocationInfoForFileLine(loc.File, loc.Line)
 	}
+	fmt.Printf("current loc at %#v %s:%d\n", pc, filepath.Base(loc.File), loc.Line)
 
 	for {
 		loc = thread.Process.LineInfo.NextLocation(loc.Address)
 		if loc.Address == pc {
+			fmt.Printf("pc %#v address %#v\n", pc, loc.Address)
 			continue
 		}
 
@@ -147,6 +151,7 @@ func (thread *ThreadContext) Next() (err error) {
 			break
 		}
 
+		fmt.Printf("set bp at %s:%d\n", filepath.Base(loc.File), loc.Line)
 		bp, err := thread.Process.Break(loc.Address)
 		if err != nil {
 			if _, ok := err.(BreakPointExistsError); !ok {
