@@ -220,6 +220,12 @@ func trapWait(dbp *DebuggedProcess, pid int) (int, error) {
 	}
 
 	dbp.updateThreadList()
+
+	if int(port) != dbp.CurrentThread.Id {
+		fmt.Printf("thread context changed from %d to %d\n", dbp.CurrentThread.Id, port)
+		dbp.CurrentThread = dbp.Threads[int(port)]
+	}
+
 	return int(port), nil
 }
 

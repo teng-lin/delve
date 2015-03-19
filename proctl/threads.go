@@ -61,6 +61,7 @@ func (thread *ThreadContext) Continue() error {
 	// Check whether we are stopped at a breakpoint, and
 	// if so, single step over it before continuing.
 	if _, ok := thread.Process.BreakPoints[regs.PC()-1]; ok {
+		fmt.Println("stepping over bp")
 		err := thread.Step()
 		if err != nil {
 			return fmt.Errorf("could not step %s", err)

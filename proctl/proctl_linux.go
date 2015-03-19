@@ -256,6 +256,10 @@ func trapWait(dbp *DebuggedProcess, pid int) (int, error) {
 			continue
 		}
 		if status.StopSignal() == sys.SIGTRAP {
+			if wpid != dbp.CurrentThread.Id {
+				fmt.Printf("thread context changed from %d to %d\n", dbp.CurrentThread.Id, thread.Id)
+				dbp.CurrentThread = dbp.Threads[wpid]
+			}
 			return wpid, nil
 		}
 		if status.StopSignal() == sys.SIGSTOP && dbp.halt {

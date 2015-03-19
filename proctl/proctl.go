@@ -236,20 +236,21 @@ func (dbp *DebuggedProcess) Next() error {
 
 		for _, th := range dbp.Threads {
 			if th == dbp.CurrentThread {
-				if err := th.Next(); err != nil && err != sys.ESRCH {
-					return err
-				}
+				continue
 			}
-
 			if err := th.Continue(); err != nil {
 				return err
 			}
 		}
+		if err := dbp.CurrentThread.Next(); err != nil && err != sys.ESRCH {
+			return err
+		}
 
-		wpid, err := trapWait(dbp, 0)
+		wpid, err := trapWait(dbp, -1)
 		if err != nil {
 			return err
 		}
+		fmt.Println("current new", dbp.CurrentThread.Id, wpid)
 		th := dbp.Threads[wpid]
 		regs, err := dbp.Registers()
 		if err != nil {
@@ -283,12 +284,6 @@ func (dbp *DebuggedProcess) Continue() error {
 		if !ok {
 			return fmt.Errorf("could not find thread for %d", wpid)
 		}
-
-		if wpid != dbp.CurrentThread.Id {
-			fmt.Printf("thread context changed from %d to %d\n", dbp.CurrentThread.Id, thread.Id)
-			dbp.CurrentThread = thread
-		}
-
 		pc, err := thread.CurrentPC()
 		if err != nil {
 			return err
