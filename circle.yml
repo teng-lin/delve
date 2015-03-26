@@ -46,7 +46,7 @@ test:
     - gvm use stable && go version
 
   # FMT
-    - gvm use stable && test -z "$(gofmt -s -l . | grep -v Godeps/_workspace/src/ | tee /dev/stderr)":
+    - gvm use stable && test -z "$(gofmt -s -l . | grep -v cmd/dlv/Godeps/_workspace/src/ | tee /dev/stderr)":
         pwd: $BASE_STABLE
 
   # VET
@@ -54,7 +54,7 @@ test:
         pwd: $BASE_STABLE
 
   # LINT
-    - gvm use stable && test -z "$(golint ./... | grep -v Godeps/_workspace/src/ | tee /dev/stderr)":
+    - gvm use stable && test -z "$(golint ./... | grep -v cmd/dlv/Godeps/_workspace/src/ | tee /dev/stderr)":
         pwd: $BASE_STABLE
 
   override:

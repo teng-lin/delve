@@ -1,0 +1,14 @@
+{
+	"ImportPath": "github.com/derekparker/delve/cmd/dlv",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/peterh/liner",
+			"Rev": "fc147570057cd703778924569c41923b28611ca2"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "2cb975bb608ceb367368e6731d718191de5d102b"
+		}
+	]
+}
